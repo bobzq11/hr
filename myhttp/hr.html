@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>人力资源管理 - Bootstrap & Vue</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css" integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B"
+        crossorigin="anonymous">
+
+    <!-- Vue.js -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <!-- axios HTTP client: 执行异步的网络通信 -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+
+</head>
+
+<body>
+
+    <div id="hr">
+        <!-- 标题、展板 -->
+        <div id="" class="jumbotron jumbotron-fluid p-3">
+            <div class="container">
+                <h1 class="display-3">{{app_name}}</h1>
+                <p class="lead">{{about}}</p>
+            </div>
+        </div>
+
+        <!-- 容器 -->
+        <div id="" class="container-fluid">
+            <!-- 行 -->
+            <div class="row">
+                <!-- 列 -->
+                <!-- 表单 -->
+                <div class="col-lg-4 col-sm-12">
+
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title">表单</h4>
+
+                            <!-- 编号 -->
+                            <div class="form-group">
+                                <label for="">编号</label>
+                                <input v-model="id" class="form-control" placeholder="编号">
+                            </div>
+                            <!-- 姓名 -->
+                            <div class="form-group">
+                                <label for="">姓名</label>
+                                <input v-model="name" class="form-control" placeholder="姓名">
+                            </div>
+                            <!-- 职位 -->
+                            <div class="form-group">
+                                <label for="">职位</label>
+                                <select class="form-control" v-model="job">
+                                    <option v-for="job in jobs">{{job}}</option>
+                                </select>
+                            </div>
+                            <!-- 联系方式 -->
+                            <div class="form-group">
+                                <label for="">联系方式</label>
+                                <input v-model="phone" class="form-control" placeholder="手机号">
+                            </div>
+                            <!-- 按钮 -->
+                            <button v-on:click="add()" class="btn btn-primary btn-lg btn-block">添加</button>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- 表格 -->
+                <div class="col-lg-8 col-sm-12">
+                    <!-- 表格 -->
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>编号</th>
+                                <th>姓名</th>
+                                <th>职位</th>
+                                <th>联系方式</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(s, index) in staffs" :key="index">
+                                <td scope="row">{{s.id}}</td>
+                                <td>{{s.name}}</td>
+                                <td>{{s.job}}</td>
+                                <td>{{s.phone}}</td>
+                                <td>
+                                    <div class="row">
+                                        <div class="col-lg-6 col-sm-12">
+                                            <button v-on:click="edit(s)" data-toggle="modal" data-target="#modelEdit"
+                                                class="btn btn-success btn-sm btn-block mb-lg-0 mb-sm-1">编辑</button>
+
+                                            <!-- 对话框：默认不显示 -->
+                                            <div class="modal fade" id="modelEdit" tabindex="-1" role="dialog"
+                                                aria-labelledby="modelTitleId" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <!-- 对话框的标题栏 -->
+                                                        <div class="modal-header">
+                                                            <h4 class="modal-title" id="modelTitleId">编辑员工信息</h4>
+                                                            <button type="button" class="close" data-dismiss="modal"
+                                                                aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <!-- 对话框的主体 -->
+                                                        <div class="modal-body">
+                                                            <div class="form-group">
+                                                                <label for="">姓名</label>
+                                                                <input v-model="staff.name" class="form-control">
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label for="">职位</label>
+                                                                <select class="form-control" v-model="staff.job">
+                                                                    <option v-for="(job, index) in jobs" :key="index">{{job}}</option>
+
+                                                                </select>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label for="">联系方式</label>
+                                                                <input v-model="staff.phone" class="form-control">
+                                                            </div>
+                                                        </div>
+                                                        <!-- 底部的按钮 -->
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-success btn-block"
+                                                                data-dismiss="modal">保存</button>
+                                                            <!-- <button type="button" class="btn btn-primary">Save</button> -->
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-sm-12">
+                                            <button v-on:click="remove(s.id, index)" class="btn btn-danger btn-sm btn-block">删除</button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Vue 脚本 -->
+    <script>
+        // JS/ES
+        new Vue({
+            el: '#hr',
+            data: {
+                app_name: '人力资源管理',
+                about: '中国移动',
+                jobs: ['前端开发', '服务端开发', '移动端开发', '测试'],
+                staffs: [
+                    // {
+                    //     id: 10000,
+                    //     name: '张小明',
+                    //     job: '测试',
+                    //     phone: '13933333333'
+                    // },
+                    // {
+                    //     id: 10010,
+                    //     name: '王强',
+                    //     job: '前端开发',
+                    //     phone: '13188888888'
+                    // }
+                ],
+                id: 0,
+                name: '',
+                job: '前端开发',
+                phone: '',
+                staff: {},
+            },
+            methods: {
+                edit: function (s) {
+                    this.staff = s;
+                },
+                remove: function (n, i) {
+                    // this.staffs.splice(n, 1);
+                    // 服务端删除
+                    axios.delete(`http://172.10.3.58:9000/api/v1/staff/${n}`)
+                    .then(
+                        (response) => {
+                            console.log(response.data);
+                            // 前端删除
+                            this.staffs.splice(i, 1);
+                        }
+                    )
+                    .catch(
+                        (error) => {console.log(error);
+                        }
+                    )
+                },
+                add: function () {
+                    // console.log(`id:${this.id}, name:${this.name}, job:${this.job}`);
+                    // XML/JSON 格式的数据对象
+                    // {} 对象
+                    // [] 数组/列表
+                    // this.staffs.unshift(
+                    //     {
+                    //         id: this.id,
+                    //         name: this.name,
+                    //         job: this.job,
+                    //         phone: this.phone
+                    //     }
+                    // );
+
+                    // 通过 HTTP POST 发送给服务端接口 API
+                    axios.post('http://172.10.3.58:9000/api/v1/staff', {
+                        name: this.name,
+                        phone: this.job,
+                        job: this.phone
+                    })
+                        .then(
+                            (res) => {
+                                console.log(res.data);
+                                // 页面是否需要显示新的数据
+                                // 1) 重新查找一次
+
+                                // axios.get(url, {
+                                //     params: {
+                                //         id:paramId
+                                //     }
+                                // })
+                                // .then(function (response) {
+                                // })
+                                // .catch(function (error) {
+                                // })
+
+                                // 2) 发送的数据追加到本地的数组中
+                                // this.staffs.unshift(
+                                //     {
+                                //         id: this.id,
+                                //         name: this.name,
+                                //         job: this.job,
+                                //         phone: this.phone
+                                //     }
+                                // );
+                            }
+                        )
+                        .catch(function (error) {
+                        })
+
+                }
+            },
+            mounted() {
+                // Vue 初始化完成后回调（钩子）
+                let url = 'http://172.10.3.58:9000/api/v1/staff';
+
+                // GET 查询/加载数据
+                axios.get(url)
+                    .then(
+                        (response) => {
+                            console.log(response.data);
+                            // 从网络获得数据赋值给 Vue 中的变量
+                            this.staffs = response.data;
+                        }
+                    )
+                    .catch((error) => { console.log(error); });
+            },
+        })
+    </script>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js" integrity="sha384-o+RDsa0aLu++PJvFqy8fFScvbHFLtbvScb8AjopnFD+iEQ7wo/CG0xlczd+2O/em"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
